@@ -1,26 +1,29 @@
 package enmime
 
-type Encoder struct {
-	base64Percent int
-}
-
+// Option to configure MIME part encoding
 type EncoderOption interface {
 	apply(p *Encoder)
 }
 
-func Base64PercentValue(n int) EncoderOption {
-	return base64PercentValue(n)
+type Encoder struct {
+	// Enforce Quoted encoding when selecting Content Transfer Encoding
+	enforceQuotedCTE bool
 }
 
-type base64PercentValue int
+// EnforceCteQuoted sets enforceCteQuotedOption option.
+func EnforceCteQuoted(b bool) EncoderOption {
+	return enforceCteQuotedOption(b)
+}
 
-func (o base64PercentValue) apply(p *Encoder) {
-	p.base64Percent = int(o)
+type enforceCteQuotedOption bool
+
+func (o enforceCteQuotedOption) apply(p *Encoder) {
+	p.enforceQuotedCTE = bool(o)
 }
 
 func NewEncoder(ops ...EncoderOption) *Encoder {
 	e := Encoder{
-		base64Percent: 20,
+		enforceQuotedCTE: false,
 	}
 
 	for _, o := range ops {

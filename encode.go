@@ -308,12 +308,13 @@ func (p *Part) selectTransferEncoding(content []byte, quoteLineBreaks bool) tran
 		return te7Bit
 	}
 
-	percent := b64Percent
-	if p.encoder != nil {
-		percent = p.encoder.base64Percent
-	}
 	// Binary chars remaining before we choose b64 encoding.
-	threshold := percent * len(content) / 100
+	var threshold int
+	if p.encoder != nil && p.encoder.enforceQuotedCTE {
+		threshold = 100
+	} else {
+		threshold = b64Percent * len(content) / 100
+	}
 	bincount := 0
 	for _, b := range content {
 		if (b < ' ' || '~' < b) && b != '\t' {
